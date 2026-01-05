@@ -1,4 +1,5 @@
 #include "Library.h"
+#include "LoanQueue.h"
 #include <iostream>
 
 Library::Library() {
@@ -15,33 +16,57 @@ int Library::findBookIndexByCode(int code) const {
 }
 
 bool Library::addBook(const Book& book) {
-    if (bookCount >= MAX_BOOKS) {
-        return false;
-    }
+    if (bookCount >= MAX_BOOKS) return false;
+    if (findBookIndexByCode(book.getId()) != -1) return false;
 
-    // Prevent duplicate book IDs
-    if (findBookIndexByCode(book.getId()) != -1) {
-        return false;
-    }
-
-    books[bookCount] = book;
-    bookCount++;
+    books[bookCount++] = book;
+    history.push(ADD_BOOK, book.getId());
     return true;
 }
 
+
 bool Library::removeBook(int code) {
     int index = findBookIndexByCode(code);
-    if (index == -1) {
-        return false;
-    }
+    if (index == -1) return false;
 
     for (int i = index; i < bookCount - 1; i++) {
         books[i] = books[i + 1];
     }
 
     bookCount--;
+    history.push(REMOVE_BOOK, code);
     return true;
 }
+
+
+
+bool Library::borrowBook(int code) {
+    int index = findBookIndexByCode(code);
+    if (index == -1) {
+        return false; // کتاب وجود ندارد
+    }
+
+    if (!books[index].getAvailability()) {
+        return false; // قبلاً امانت داده شده
+    }
+
+    books[index].borrowBook();
+    LoanQueue::enqueue(code);
+    history.push(BORROW_BOOK, code); // ← برای Undo لازم است
+    return true;
+}
+
+
+bool Library::returnBook(int code) {
+    int index = findBookIndexByCode(code);
+    if (index == -1) return false;
+    if (books[index].getAvailability()) return false;
+
+    books[index].returnBook();
+    history.push(RETURN_BOOK, code);
+    return true;
+}
+
 
 Book* Library::searchBookByCode(int code) {
     int index = findBookIndexByCode(code);
@@ -91,3 +116,31 @@ void Library::printAllBooks() const {
         std::cout << "------------------" << std::endl;
     }
 }
+bool Library::undoLastOperation() {
+    Operation lastOp;
+
+    if (!history.pop(lastOp)) {
+        return false;
+    }
+
+    switch (lastOp.type) {
+    case ADD_BOOK:
+        removeBook(lastOp.bookCode);
+        break;
+
+    case REMOVE_BOOK:
+        // Undo remove is not fully supported without backup data
+        return false;
+
+    case BORROW_BOOK:
+        returnBook(lastOp.bookCode);
+        break;
+
+    case RETURN_BOOK:
+        borrowBook(lastOp.bookCode);
+        break;
+    }
+
+    return true;
+}
+

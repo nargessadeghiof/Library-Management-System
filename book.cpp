@@ -1,4 +1,16 @@
 #include "Book.h"
+#include <iostream>
+
+using namespace std;
+
+// Default constructor
+Book::Book() {
+    id = -1;
+    title = "";
+    author = "";
+    publishYear = 0;
+    isAvailable = true;
+}
 
 // Constructor implementation
 Book::Book(int _id, string _title, string _author, int _year) {
@@ -6,40 +18,62 @@ Book::Book(int _id, string _title, string _author, int _year) {
     title = _title;
     author = _author;
     publishYear = _year;
-    isAvailable = true; // Book is available when created
+    isAvailable = true;
 }
 
-// Returns book ID
+// Original getters
 int Book::getId() const {
     return id;
 }
 
-// Returns book title
 string Book::getTitle() const {
     return title;
 }
 
-// Returns author name
 string Book::getAuthor() const {
     return author;
 }
 
-// Returns publication year
 int Book::getPublishYear() const {
     return publishYear;
 }
 
-// Returns availability status
 bool Book::getAvailability() const {
     return isAvailable;
 }
 
-// Marks the book as borrowed
+// === Compatibility methods ===
+int Book::getCode() const {
+    return id;
+}
+
+int Book::getYear() const {
+    return publishYear;
+}
+
+bool Book::getStatus() const {
+    return isAvailable;
+}
+
+void Book::setStatus(bool status) {
+    isAvailable = status;
+}
+
+// Book status operations
 void Book::borrowBook() {
     isAvailable = false;
 }
 
-// Marks the book as returned
 void Book::returnBook() {
     isAvailable = true;
+}
+
+// Display book info
+void Book::print() const {
+    cout << "ID: " << id << endl;
+    cout << "Title: " << title << endl;
+    cout << "Author: " << author << endl;
+    cout << "Publish Year: " << publishYear << endl;
+    cout << "Status: " << (isAvailable ? "Available" : "Borrowed") << endl;
+    cout << "------------------------" << endl;
 }

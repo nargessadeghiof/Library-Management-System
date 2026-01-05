@@ -14,19 +14,29 @@ private:
     bool isAvailable;       // Availability status
 
 public:
+    Book();
     // Constructor
     Book(int _id, string _title, string _author, int _year);
 
-    // Getter methods
+    // Original getters
     int getId() const;
     string getTitle() const;
     string getAuthor() const;
     int getPublishYear() const;
     bool getAvailability() const;
 
+    // === Added for Library compatibility ===
+    int getCode() const;        // Same as getId()
+    int getYear() const;        // Same as getPublishYear()
+    bool getStatus() const;     // Same as getAvailability()
+    void setStatus(bool status);
+
     // Book status operations
-    void borrowBook();      // Mark book as borrowed
-    void returnBook();      // Mark book as available
+    void borrowBook();          // Mark book as borrowed
+    void returnBook();          // Mark book as available
+
+    // Display book info
+    void print() const;
 };
 
 #endif

@@ -1,5 +1,6 @@
 #ifndef LIBRARY_H
 #define LIBRARY_H
+#include "History.h"
 
 #include "Book.h"
 
@@ -8,8 +9,10 @@ private:
     static const int MAX_BOOKS = 100;
     Book books[MAX_BOOKS];
     int bookCount;
-
+    History history;
+ 
     int findBookIndexByCode(int code) const;
+    
 
 public:
     Library();
@@ -26,6 +29,14 @@ public:
     // Utility
     int getBookCount() const;
     void printAllBooks() const;
+
+
+    bool undoLastOperation();
+    // Loan operations
+    bool borrowBook(int code);
+    bool returnBook(int code);
+    
+
 };
 
 #endif
